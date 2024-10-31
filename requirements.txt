@@ -1,3 +1,4 @@
 pyrogram
 tzlocal==4.3
 apscheduler==3.9.1
+TgCrypto
