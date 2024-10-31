@@ -1,39 +1,54 @@
-import os
-import time
-from datetime import datetime, timedelta
-from pyrogram import Client
-from dotenv import load_dotenv
+import asyncio
+from datetime import datetime, time
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+from pyrogram import Client, filters
+from tzlocal import get_localzone
 
-# Load environment variables from .env file
-load_dotenv()
+# Set up bot with your own credentials
+api_id = "3847632"
+api_hash = "1a9708f807ddd06b10337f2091c67657"
+bot_token = "6433673225:AAHnxVRkTnps4z_KbdClWdyFETR9dlCCRpM"
 
-# Telegram API credentials
-API_ID = os.getenv("API_ID")
-API_HASH = os.getenv("API_HASH")
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHANNEL_ID = os.getenv("CHANNEL_ID")
+# Set your channel username or ID (format like -1001234567890 for private channels)
+channel_id = "-1001835361439‎"
 
-# Create a Pyrogram Client
-app = Client("my_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
+# Define time zone (IST - Indian Standard Time)
+time_zone = "Asia/Kolkata"
 
-# Function to send message to the channel
-def send_message():
-    with app:
-        app.send_message(CHANNEL_ID, "This is a scheduled message every 2 hours!")
+app = Client("alarm_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-# Function to calculate the next scheduled time
-def get_next_run_time():
-    now = datetime.now()
-    next_run = now + timedelta(hours=2)
-    next_run = next_run.replace(minute=0, second=0, microsecond=0)
-    return next_run
+# Initialize scheduler
+scheduler = AsyncIOScheduler(timezone=time_zone)
 
-if __name__ == "__main__":
-    next_run_time = get_next_run_time()
-    
-    while True:
-        current_time = datetime.now()
-        if current_time >= next_run_time:
-            send_message()
-            next_run_time = get_next_run_time()
-        time.sleep(60)  # Check every minute
+
+@app.on_message(filters.command("start") & filters.private)
+async def start(client, message):
+    await message.reply("Hello! I will send alarms to the designated channel at specified times.")
+
+
+# Alarm message sending function
+async def send_alarm_message():
+    await app.send_message(channel_id, "⏰ This is a scheduled alarm message!")
+
+
+def schedule_alarms():
+    # Set up all specified times for IST
+    for hour in range(0, 24, 2):
+        # Scheduling alarms at specified hours in IST
+        scheduler.add_job(
+            send_alarm_message,
+            trigger=CronTrigger(hour=hour, minute=0, timezone=time_zone)
+        )
+
+
+# Starting the scheduler when bot starts
+@app.on_startup
+async def startup_scheduler():
+    schedule_alarms()
+    scheduler.start()
+    print("Scheduler started, alarms set for every 2 hours in IST.")
+
+
+# Running the bot
+app.run()
