@@ -1,9 +1,9 @@
 import asyncio
-from datetime import datetime, time
+from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from pyrogram import Client, filters
-from tzlocal import get_localzone
+
 
 # Set up bot with your own credentials
 api_id = "3847632"
@@ -12,7 +12,6 @@ bot_token = "6433673225:AAHnxVRkTnps4z_KbdClWdyFETR9dlCCRpM"
 
 # Set your channel username or ID (format like -1001234567890 for private channels)
 channel_id = "-1001835361439‎"
-
 # Define time zone (IST - Indian Standard Time)
 time_zone = "Asia/Kolkata"
 
@@ -29,7 +28,7 @@ async def start(client, message):
 
 # Alarm message sending function
 async def send_alarm_message():
-    await app.send_message(channel_id, "⏰ This is a scheduled alarm message!")
+    await app.send_message(channel_id, "Nigga paint up your ass")
 
 
 def schedule_alarms():
@@ -42,13 +41,17 @@ def schedule_alarms():
         )
 
 
-# Starting the scheduler when bot starts
-@app.on_startup
-async def startup_scheduler():
-    schedule_alarms()
-    scheduler.start()
-    print("Scheduler started, alarms set for every 2 hours in IST.")
+# Main function to start the bot and scheduler
+async def main():
+    await app.start()  # Start the bot
+    print("Bot started")
+    schedule_alarms()  # Schedule alarms
+    scheduler.start()  # Start the scheduler
+
+    # Keep the bot running
+    await idle()
+    await app.stop()  # Stop the bot when done
 
 
-# Running the bot
-app.run()
+if __name__ == "__main__":
+    asyncio.run(main())
