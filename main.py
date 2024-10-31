@@ -13,6 +13,10 @@ time_zone = "Asia/Kolkata"
 app = Client("alarm_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 scheduler = AsyncIOScheduler(timezone=time_zone)
 
+@app.on_message(filters.command("test") & filters.private)
+async def test_message(client, message):
+    await app.send_message(channel_id, "Test message to channel.")
+
 @app.on_message(filters.command("start") & filters.private)
 async def start(client, message):
     await message.reply("Hello! I will send alarms to the designated channel at specified times.")
