@@ -1,57 +1,50 @@
 import asyncio
-from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
-from pyrogram import Client, filters
+from pyrogram import Client, filters, idle
+from tzlocal import get_localzone
 
-
-# Set up bot with your own credentials
+# Telegram Bot Credentials
 api_id = "3847632"
 api_hash = "1a9708f807ddd06b10337f2091c67657"
 bot_token = "6433673225:AAHnxVRkTnps4z_KbdClWdyFETR9dlCCRpM"
-
-# Set your channel username or ID (format like -1001234567890 for private channels)
 channel_id = "-1001835361439‎"
-# Define time zone (IST - Indian Standard Time)
 time_zone = "Asia/Kolkata"
-
 app = Client("alarm_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
-
-# Initialize scheduler
 scheduler = AsyncIOScheduler(timezone=time_zone)
 
-
+# Respond to /start command with a greeting
 @app.on_message(filters.command("start") & filters.private)
 async def start(client, message):
     await message.reply("Hello! I will send alarms to the designated channel at specified times.")
 
 
-# Alarm message sending function
+# Function to send scheduled alarm messages
 async def send_alarm_message():
-    await app.send_message(channel_id, "Nigga paint up your ass")
+    await app.send_message(channel_id, "⏰ This is a scheduled alarm message!")
 
 
+# Function to schedule alarms every 2 hours
 def schedule_alarms():
-    # Set up all specified times for IST
-    for hour in range(0, 24, 2):
-        # Scheduling alarms at specified hours in IST
+    for hour in range(0, 24, 2):  # Runs at 00:00, 02:00, 04:00, etc.
         scheduler.add_job(
             send_alarm_message,
             trigger=CronTrigger(hour=hour, minute=0, timezone=time_zone)
         )
 
 
-# Main function to start the bot and scheduler
+# Main function to start the bot and initialize the scheduler
 async def main():
     await app.start()  # Start the bot
     print("Bot started")
-    schedule_alarms()  # Schedule alarms
+    schedule_alarms()  # Schedule the alarms
     scheduler.start()  # Start the scheduler
 
     # Keep the bot running
     await idle()
-    await app.stop()  # Stop the bot when done
+    await app.stop()  # Stop the bot when idle stops
 
 
+# Run the main function
 if __name__ == "__main__":
     asyncio.run(main())
