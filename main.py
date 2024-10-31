@@ -8,21 +8,18 @@ from tzlocal import get_localzone
 api_id = "3847632"
 api_hash = "1a9708f807ddd06b10337f2091c67657"
 bot_token = "6433673225:AAHnxVRkTnps4z_KbdClWdyFETR9dlCCRpM"
-channel_id = "-1001835361439‎"
+channel_id = "-1001835361439"
 time_zone = "Asia/Kolkata"
 app = Client("alarm_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 scheduler = AsyncIOScheduler(timezone=time_zone)
 
-# Respond to /start command with a greeting
 @app.on_message(filters.command("start") & filters.private)
 async def start(client, message):
     await message.reply("Hello! I will send alarms to the designated channel at specified times.")
 
-
 # Function to send scheduled alarm messages
 async def send_alarm_message():
     await app.send_message(channel_id, "⏰ This is a scheduled alarm message!")
-
 
 # Function to schedule alarms every 2 hours
 def schedule_alarms():
@@ -31,7 +28,6 @@ def schedule_alarms():
             send_alarm_message,
             trigger=CronTrigger(hour=hour, minute=0, timezone=time_zone)
         )
-
 
 # Main function to start the bot and initialize the scheduler
 async def main():
@@ -44,7 +40,7 @@ async def main():
     await idle()
     await app.stop()  # Stop the bot when idle stops
 
-
-# Run the main function
+# Run the main function within an asyncio event loop
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
