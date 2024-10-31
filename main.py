@@ -23,7 +23,12 @@ async def start(client, message):
 
 # Function to send scheduled alarm messages
 async def send_alarm_message():
-    await app.send_message(channel_id, "⏰ This is a scheduled alarm message!")
+    try:
+        await app.send_message(channel_id, "⏰ This is a scheduled alarm message!")
+    except PeerIdInvalid:
+        print(f"Error: The channel ID {channel_id} is invalid or the bot has not been added to the channel.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 # Function to schedule alarms every 2 hours
 def schedule_alarms():
